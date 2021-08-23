@@ -6,3 +6,4 @@ Bundle-Version: 1.0.0
 Bundle-Name: sample-package-core
 Bundle-ManifestVersion: 2
 Bundle-SymbolicName: org.nuxeo.sample.core.sample-package-core;singleton=true
+Nuxeo-Component: OSGI-INF/custombulkaction-bulk-action-contrib.xml

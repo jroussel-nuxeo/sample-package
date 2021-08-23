@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<component name="org.nuxeo.sample.core.actions.custombulkaction">
+
+  <require>org.nuxeo.ecm.core.bulk</require>
+
+  <extension target="org.nuxeo.ecm.core.bulk" point="actions">
+    <action name="custombulkaction" bucketSize="100" batchSize="25" sequentialCommands="true"/>
+  </extension>
+
+  <extension target="org.nuxeo.runtime.stream.service" point="streamProcessor">
+    <streamProcessor name="custombulkaction" class="org.nuxeo.sample.core.CustomBulkAction"
+                     defaultConcurrency="1" defaultPartitions="1" logConfig="bulk">
+      <policy name="default" maxRetries="3" delay="1s" maxDelay="10s" continueOnFailure="true"/>
+    </streamProcessor>
+  </extension>
+
+</component>
