@@ -36,7 +36,6 @@ public class TestCustomBulkAction {
 
     @Test
     public void testAction() {
-
         // Change NXQL to retrieve the expected test documents
         String nxql = "SELECT * FROM Document WHERE ecm:isTrashed = 0";
 
@@ -50,7 +49,8 @@ public class TestCustomBulkAction {
         assertNotNull(status);
         assertEquals(COMPLETED, status.getState());
 
-        // Validate documents have been modified as expected(e.g. they are no longer retrieved by the NXQL if a flag metadata has been changed)
+        // TODO: implement test
+        // For instance, validate that documents have been modified as expected(e.g. they are no longer retrieved by the NXQL if a flag metadata has been changed)
         assertEquals(0, session.query(nxql).size());
     }
 }

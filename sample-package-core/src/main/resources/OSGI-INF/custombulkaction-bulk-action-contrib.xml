@@ -4,14 +4,42 @@
   <require>org.nuxeo.ecm.core.bulk</require>
 
   <extension target="org.nuxeo.ecm.core.bulk" point="actions">
-    <action name="custombulkaction" bucketSize="100" batchSize="25" sequentialCommands="true"/>
+    <!-- bucketSize is the number of document ids that will be put in the action record, batchSize is the number of document ids that is going to be processed within a transaction, we always want to have bucketSize >= batchSize -->
+    <action name="customBulkAction" bucketSize="100" batchSize="25" sequentialCommands="true"/>
   </extension>
 
   <extension target="org.nuxeo.runtime.stream.service" point="streamProcessor">
-    <streamProcessor name="custombulkaction" class="org.nuxeo.sample.core.CustomBulkAction"
-                     defaultConcurrency="1" defaultPartitions="1" logConfig="bulk">
-      <policy name="default" maxRetries="3" delay="1s" maxDelay="10s" continueOnFailure="true"/>
+    <!--
+      TODO review following configuration based on your action. Do you require and support concurrency? Which retry policy do you require? ...
+
+      'defaultPartitions' cannot be changed without deleting the topic on Kafka side, meaning it's important to configure it properly before its creation (first deployment) if you want to have concurrent processing,
+      as it limits the number of concurrent threads
+
+      'defaultConcurrency' limits the number of threads to start. Following rule must be true: defaultConcurrency <= defaultPartitions
+
+      It is always interesting to leave some room if you need to increase the concurrency in the future, for instance having defaultConcurrency="2" defaultPartitions ="4"
+      A factor 3 could be interesting.
+
+      1 1 is needed when you need to have an order
+    -->
+    <streamProcessor name="customBulkAction" class="org.nuxeo.sample.core.CustomBulkAction"
+                     defaultConcurrency="2" defaultPartitions="6">
+      <policy name="customBulkActionPolicy" maxRetries="3" delay="1s" maxDelay="10s" continueOnFailure="true"/>
     </streamProcessor>
+    <!-- Configuration examples
+
+        AuditWriter requiring order:
+        <streamProcessor name="auditWriter" class="org.nuxeo.ecm.platform.audit.impl.StreamAuditWriter"
+            defaultConcurrency="1" defaultPartitions="1" ...>
+
+        Default SetProperties:
+        <streamProcessor name="setProperties" class="org.nuxeo.ecm.core.bulk.action.SetPropertiesAction"
+            defaultConcurrency="2" defaultPartitions="2" ...>
+
+        SetProperties with high performance requirements
+        <streamProcessor name="setProperties" class="org.nuxeo.ecm.core.bulk.action.SetPropertiesAction" logConfig="bulk"
+            defaultConcurrency="4" defaultPartitions="8" ...>
+     -->
   </extension>
 
 </component>
