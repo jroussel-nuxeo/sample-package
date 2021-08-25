@@ -2,6 +2,7 @@ package org.nuxeo.sample.core;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.nuxeo.ecm.core.bulk.message.BulkStatus.State.COMPLETED;
 import static org.nuxeo.sample.core.CustomBulkAction.ACTION_NAME;
 
@@ -16,9 +17,9 @@ import org.nuxeo.ecm.core.test.CoreFeature;
 import org.nuxeo.runtime.test.runner.Deploy;
 import org.nuxeo.runtime.test.runner.Features;
 import org.nuxeo.runtime.test.runner.FeaturesRunner;
-import org.nuxeo.runtime.test.runner.TransactionalFeature;
 
 import javax.inject.Inject;
+import java.time.Duration;
 
 @RunWith(FeaturesRunner.class)
 @Features({ CoreFeature.class, CoreBulkFeature.class })
@@ -26,7 +27,7 @@ import javax.inject.Inject;
 public class TestCustomBulkAction {
 
     @Inject
-    protected TransactionalFeature txFeature;
+    protected BulkService bulkService;
 
     @Inject
     protected BulkService service;
@@ -35,7 +36,7 @@ public class TestCustomBulkAction {
     protected CoreSession session;
 
     @Test
-    public void testAction() {
+    public void testAction() throws Exception {
         // Change NXQL to retrieve the expected test documents
         String nxql = "SELECT * FROM Document WHERE ecm:isTrashed = 0";
 
@@ -43,7 +44,8 @@ public class TestCustomBulkAction {
         session.getPrincipal().getName()).repository(session.getRepositoryName()).build();
         String commandId = service.submit(command);
 
-        txFeature.nextTransaction();
+        // Wait explicitly for the submitted command to be over
+        assertTrue(bulkService.await(commandId, Duration.ofSeconds(20)));
 
         BulkStatus status = service.getStatus(commandId);
         assertNotNull(status);
