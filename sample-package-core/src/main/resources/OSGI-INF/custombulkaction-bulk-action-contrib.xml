@@ -5,7 +5,8 @@
 
   <extension target="org.nuxeo.ecm.core.bulk" point="actions">
     <!-- bucketSize is the number of document ids that will be put in the action record, batchSize is the number of document ids that is going to be processed within a transaction, we always want to have bucketSize >= batchSize -->
-    <action name="customBulkAction" bucketSize="100" batchSize="25" sequentialCommands="true"/>
+    <action name="customBulkAction" inputStream="bulk/customBulkAction"
+            bucketSize="100" batchSize="25" sequentialCommands="true"/>
   </extension>
 
   <extension target="org.nuxeo.runtime.stream.service" point="streamProcessor">
